@@ -26,17 +26,27 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 var setUserNameLocal = function (req, res, next) {
-  res.locals.currentUser = req.cookies.user
-  next()
-}
+  res.locals.currentUser = req.cookies.user;
+  next();
+};
 
-app.use(setUserNameLocal)
+app.use(setUserNameLocal);
 
 app.use('/', routes);
 app.use('/', auth);
 app.use('/users', users);
-app.use('/articles', articles);
-app.use('/products', products);
+app.use('/articles', authenticate, articles);
+app.use('/products', authenticate, products);
+
+function authenticate (req, res, next) {
+  console.log('test',req.cookies);
+  if (!req.cookies.user) {
+    res.redirect('/');
+  }
+  else {
+    next();
+  }
+}
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
